@@ -103,6 +103,8 @@ contract TradeContract is SafeMath {
 
     function takerBuyAsset() public payable {
         if (allowTokenEx || msg.sender == owner) {
+            // We block out the target_wallet, b/c it could drain the tokens without spending any eth
+            require(msg.sender != target_wallet, "Target wallet is prohibited to exchange tokens!");
             // Note that exchangeRate has already been validated as > 0
             uint256 tokens = safeMul(msg.value, exchangeRate);
             require(tokens > 0, "something went wrong on our math, token value negative");
@@ -111,6 +113,10 @@ contract TradeContract is SafeMath {
             require(InterfaceERC20(exchanging_token_addr).transfer(msg.sender, tokens), "Exchanged token transfer failed!");
             emit ExchangeTokens(msg.sender, msg.value, tokens);
             replenishFund();
+            // Only triggers when the target wallet has been configured, otherwise, leave the Eth in this contract
+            if(target_wallet != 0) {
+                withdraw(msg.value); // requesting another 2300 gas, revert leads to token sale failure
+            }
         }
         else
         {
@@ -123,10 +129,11 @@ contract TradeContract is SafeMath {
     }
 
     function ownerKill() external restricted {
-        selfdestruct(owner);
+        require(target_wallet != 0, "Target wallet not set, can't withdraw!");
+        selfdestruct(target_wallet);
     }
 
-    function withdraw(uint256 amount) external restricted_withdraw {
+    function withdraw(uint256 amount) private {
         require(target_wallet != 0, "Target wallet not set, can't withdraw!");
         // Use transfer() : require(target_wallet.send(amount), "Can't withdraw eth");
         target_wallet.transfer(amount);
