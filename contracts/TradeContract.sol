@@ -69,6 +69,10 @@ contract TradeContract is SafeMath {
         if(exchangeRate < 0) revert("exchange rate cannot be negative");
     }
 
+    function updateTokenContract(address _new_erc20_addr) external restricted {
+        exchanging_token_addr = _new_erc20_addr;
+    }
+
     function currentTokenContract() public view returns (address tok_addr) {
         return exchanging_token_addr;
     }
@@ -130,6 +134,10 @@ contract TradeContract is SafeMath {
 
     function ownerKill() external restricted {
         require(target_wallet != 0, "Target wallet not set, can't withdraw!");
+        uint256 remain_balance = InterfaceERC20(exchanging_token_addr).balanceOf(this);
+        require(
+            InterfaceERC20(exchanging_token_addr).transfer(owner, remain_balance), 
+            "Withdraw tokens back to owner failed before self desctruction!");
         selfdestruct(target_wallet);
     }
 
