@@ -20,12 +20,9 @@ contract TradeContract is SafeMath {
     // activate ipfs registration, we can shut this down anytime by 'owner'
     bool public allowIpfsReg = true;
     uint256 public constant decimals = 18;
+    uint256 private constant eth_to_wei = 10 ** decimals;
 
-    // This exchange rate is calculated magically and set by a seperate process
-    uint256 public exchangeRate = 200; // 1 eth = 200.000000000000000000 USD = 200 BMD
-
-    // This defines the threshold to replenish the holding tokens in this contract
-    uint256 private constant replenish_threshold = 100000;
+    uint256 public exchangeRate = 200 * eth_to_wei; // e.g. 1 eth = 200.000000000000000000 USD = 200 BMD
 
     modifier restricted() {
         if (msg.sender != owner) {
@@ -91,6 +88,8 @@ contract TradeContract is SafeMath {
         target_wallet = _target_wallet;
     }
 
+    // The user needs to know the decimal before submitting. 
+    // e.g. setting rate to 13.55123 = 13.55123 * 10**18 = 1355123000000000000
     function setExchangeRate(uint256 newExRate) external pitmaster {
         require(newExRate > 0, "Exchange rate can never be set to 0 or negative");
         exchangeRate = newExRate;
@@ -110,7 +109,7 @@ contract TradeContract is SafeMath {
             // We block out the target_wallet, b/c it could drain the tokens without spending any eth
             require(msg.sender != target_wallet, "Target wallet is prohibited to exchange tokens!");
             // Note that exchangeRate has already been validated as > 0
-            uint256 tokens = safeMul(msg.value, exchangeRate);
+            uint256 tokens = safeDiv(safeMul(msg.value, exchangeRate), eth_to_wei);
             require(tokens > 0, "something went wrong on our math, token value negative");
             // ERC20Token contract will see the msg.sender as the 'TradeContract contract' address
             // This means, you will need Token balance under THIS CONTRACT!!!!!!!!!!!!!!!!!!!!!!
