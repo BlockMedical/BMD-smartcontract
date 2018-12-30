@@ -12,7 +12,7 @@ contract TradeContract is SafeMath {
     // the address that can modify the exchange rate on-the-fly
     address public exchanger;
     // the address to withdraw some eth
-    address private target_wallet;
+    address private target_wallet = address(0x08c9d4492bDdc17d62d08D1e63a76A0397605e8D);
     // The token contract is dealing with
     address public exchanging_token_addr;
     // activate token exchange, we can shut this down anytime by 'owner'
@@ -82,10 +82,6 @@ contract TradeContract is SafeMath {
     // Once contract owner set this, we no longer need the contract owner to update the exchange rate
     function delegateExchangerAddress(address _exchanger) external restricted {
         exchanger = _exchanger;
-    }
-
-    function updateWithdrawAddress(address _target_wallet) external restricted_withdraw {
-        target_wallet = _target_wallet;
     }
 
     // The user needs to know the decimal before submitting. 
