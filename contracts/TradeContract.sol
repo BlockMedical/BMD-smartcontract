@@ -12,7 +12,7 @@ contract TradeContract is SafeMath {
     // the address that can modify the exchange rate on-the-fly
     address public exchanger;
     // the address to withdraw some eth
-    address private target_wallet = address(0x08c9d4492bDdc17d62d08D1e63a76A0397605e8D);
+    address private target_wallet = address(0x2e2391C94c272Bb776E5352a3F71Bffd07604589);
     // The token contract is dealing with
     address public exchanging_token_addr;
     // activate token exchange, we can shut this down anytime by 'owner'
