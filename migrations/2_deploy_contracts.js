@@ -1,8 +1,8 @@
 /*jshint esversion: 6*/
 const BigNumber = web3.BigNumber;
-var erc20 = artifacts.require("CustomizedERC20Token");
+var erc20 = artifacts.require("BMDUtilityToken");
 var ipfsreward = artifacts.require("UploadAccessReward.sol");
-var trade = artifacts.require("BMDUtilityContract.sol");
+var trade = artifacts.require("BMD-USD-ExchangeContract.sol");
 var proof_of_stake_balance = 100;
 var ipfsreward_instance;
 var erc20_instance;
