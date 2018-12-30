@@ -2,7 +2,7 @@
 const BigNumber = web3.BigNumber;
 var erc20 = artifacts.require("ERC20Token");
 var ipfsreward = artifacts.require("RewardDistributor.sol");
-var trade = artifacts.require("TradeContract.sol");
+var trade = artifacts.require("BMDUtilityContract.sol");
 var proof_of_stake_balance = 100;
 var ipfsreward_instance;
 var erc20_instance;
