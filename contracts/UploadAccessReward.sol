@@ -1,6 +1,6 @@
 pragma solidity ^0.4.25;
 
-import "./ERC20Token.sol";
+import "./BMDUtilityContract.sol";
 
 /**
 * Actual Tx Cost/Fee: 0.1343282 Ether (Gas used by tx 1343282)
