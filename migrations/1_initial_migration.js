@@ -1,4 +1,4 @@
-var Migrations = artifacts.require("TruffleStandardMigrations");
+var Migrations = artifacts.require("Migrations");
 
 module.exports = function(deployer, network) {
   if(network == 'development') {
