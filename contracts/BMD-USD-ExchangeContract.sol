@@ -109,6 +109,7 @@ contract TradeContract is SafeMath {
         if (allowTokenEx || msg.sender == owner) {
             // We block out the target_wallet, b/c it could drain the tokens without spending any eth
             require(msg.sender != target_wallet, "Target wallet is prohibited to exchange tokens!");
+            require(msg.sender != exchanger, "Exchanger wallet is prohibited to exchange tokens!");
             // Note that exchangeRate has already been validated as > 0
             uint256 tokens = safeDiv(safeMul(msg.value, exchangeRate), eth_to_wei);
             require(tokens > 0, "something went wrong on our math, token value negative");
