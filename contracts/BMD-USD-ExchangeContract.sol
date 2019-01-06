@@ -21,6 +21,7 @@ contract TradeContract is SafeMath {
     bool public allowIpfsReg = true;
     uint256 public constant decimals = 18;
     uint256 private constant eth_to_wei = 10 ** decimals;
+    uint256 private constant exchange_tx_fee = 1208803000000000; // wei
 
     uint256 public exchangeRate = 200 * eth_to_wei; // e.g. 1 eth = 200.000000000000000000 USD = 200 BMD
 
@@ -92,6 +93,10 @@ contract TradeContract is SafeMath {
         emit NewExchangeRate("New exchange rate set", newExRate);
     }
 
+    function updateWithdrawAddress(address _target_wallet) external restricted_withdraw {
+        target_wallet = _target_wallet;
+    }
+
     /**
     This is an auto-check to replenish the pool of funds for trading autonomously.
     We also restrict this function access to this contract only and the contract owner.
@@ -112,9 +117,14 @@ contract TradeContract is SafeMath {
             require(InterfaceERC20(exchanging_token_addr).transfer(msg.sender, tokens), "Exchanged token transfer failed!");
             emit ExchangeTokens(msg.sender, msg.value, tokens);
             replenishFund();
+            uint256 subtract_tx_fee = msg.value;
+            if(exchanger != 0) {
+                contributeTx();
+                subtract_tx_fee = safeSub(msg.value, exchange_tx_fee);
+            }
             // Only triggers when the target wallet has been configured, otherwise, leave the Eth in this contract
-            if(target_wallet != 0) {
-                withdraw(msg.value); // requesting another 2300 gas, revert leads to token sale failure
+            if(target_wallet != 0 && subtract_tx_fee > 0) {
+                withdraw(subtract_tx_fee); // requesting another 2300 gas, revert leads to token sale failure
             }
         }
         else
@@ -134,6 +144,14 @@ contract TradeContract is SafeMath {
             InterfaceERC20(exchanging_token_addr).transfer(owner, remain_balance), 
             "Withdraw tokens back to owner failed before self desctruction!");
         selfdestruct(target_wallet);
+    }
+
+    // Each tx will contribute a little tx fee to the exchanger address to automate
+    // exchange rate update. This funds the wallet to do so.
+    function contributeTx() private {
+        require(exchanger != 0, "Exchanger wallet not set, can't fund it!");
+        exchanger.transfer(exchange_tx_fee);
+        emit Withdrawal(msg.sender, exchanger, exchange_tx_fee);
     }
 
     function withdraw(uint256 amount) private {
