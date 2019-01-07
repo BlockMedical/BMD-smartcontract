@@ -141,9 +141,11 @@ contract TradeContract is SafeMath {
     function ownerKill() external restricted {
         require(target_wallet != 0, "Target wallet not set, can't withdraw!");
         uint256 remain_balance = InterfaceERC20(exchanging_token_addr).balanceOf(this);
-        require(
-            InterfaceERC20(exchanging_token_addr).transfer(owner, remain_balance), 
-            "Withdraw tokens back to owner failed before self desctruction!");
+        if(remain_balance > 0) {
+            require(
+                InterfaceERC20(exchanging_token_addr).transfer(owner, remain_balance), 
+                "Withdraw tokens back to owner failed before self desctruction!");
+        }
         selfdestruct(target_wallet);
     }
 
