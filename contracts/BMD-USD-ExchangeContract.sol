@@ -93,10 +93,6 @@ contract TradeContract is SafeMath {
         emit NewExchangeRate("New exchange rate set", newExRate);
     }
 
-    function updateWithdrawAddress(address _target_wallet) external restricted_withdraw {
-        target_wallet = _target_wallet;
-    }
-
     /**
     This is an auto-check to replenish the pool of funds for trading autonomously.
     We also restrict this function access to this contract only and the contract owner.
